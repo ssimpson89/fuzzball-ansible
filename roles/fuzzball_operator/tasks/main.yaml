@@ -1,0 +1,28 @@
+---
+
+# Waiting for https://github.com/ansible-collections/kubernetes.core/issues/578
+- name: Log into Depot with helm
+  ansible.builtin.command:
+    cmd: helm registry login "{{ depot_server }}" --username "{{ depot_user }}" --password-stdin
+    stdin: "{{ depot_token }}"
+
+- name: Install Fuzzball operator
+  kubernetes.core.helm:
+    name: fuzzball-operator
+    state: present
+    chart_ref: "{{ fuzzball_operator_chart }}"
+    chart_version: "{{ fuzzball_operator_version }}"
+    namespace: fuzzball-system
+    create_namespace: true
+    values:
+      image:
+        repository: "{{ fuzzball_operator_image }}"
+        tag: "{{ fuzzball_operator_version }}"
+      imagePullSecrets:
+        name: "repository-ciq-com"
+        inline:
+          registry: "{{ depot_server }}"
+          username: "{{ depot_user }}"
+          password: "{{ depot_token }}"
+      storageClassName: "{{ fuzzball_operator_storage_class }}"
+    kubeconfig: "{{ kubeconfig }}"

@@ -1,0 +1,20 @@
+---
+
+- name: Install CIQ Depot
+  ansible.builtin.dnf:
+    name: https://{{ depot_server }}/public/files/depot-client/depot/depot.x86_64.rpm
+    state: present
+
+- name: Register with CIQ Depot
+  ansible.builtin.command:
+    cmd: "depot register --server \"https://{{ depot_server }}\" --user \"{{ depot_user }}\" --token \"{{ depot_token }}\""
+    creates: /root/.depot/client.yaml
+
+- name: Set facts for other roles to use
+  ansible.builtin.set_fact:
+    depot_server: "{{ depot_server }}"
+
+- name: Configure DNF with CIQ Depot
+  ansible.builtin.command:
+    cmd: "depot dnf"
+    creates: /etc/yum.repos.d/depot.repo

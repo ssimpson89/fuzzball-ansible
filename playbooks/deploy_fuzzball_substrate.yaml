@@ -1,0 +1,6 @@
+---
+
+- name: Deploy Fuzzball Substrate
+  hosts: "{{ ansible_limit | default(omit) }}"
+  roles:
+  - ciq.fuzzball.fuzzball_substrate

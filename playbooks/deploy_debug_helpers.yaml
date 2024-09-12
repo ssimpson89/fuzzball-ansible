@@ -1,0 +1,16 @@
+---
+
+- name: Deploy helper scripts
+  hosts: "{{ ansible_limit | default(omit) }}"
+  tasks:
+    - name: rke2.sh
+      ansible.builtin.copy:
+        content: |
+          PATH=/var/lib/rancher/rke2/bin:$PATH
+          export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+        dest: /root/rke2.sh
+
+    - name: deployment-info.sh
+      ansible.builtin.copy:
+        src: deployment-info.sh
+        dest: /root/deployment-info.sh

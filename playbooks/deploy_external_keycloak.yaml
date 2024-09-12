@@ -1,0 +1,13 @@
+---
+
+- name: Deploy an external Keycloak
+  hosts: "{{ ansible_limit | default(omit) }}"
+  pre_tasks:
+  - name: Gather facts from Fuzzball hosts (regardless of limit or tags)
+    ansible.builtin.setup:
+    delegate_to: "{{ item }}"
+    delegate_facts: True
+    when: hostvars[item]['ansible_default_ipv4'] is not defined
+    loop: "{{ groups['fuzzball_controller'] + groups['fuzzball_compute'] }}"
+  roles:
+  - ciq.fuzzball.keycloak

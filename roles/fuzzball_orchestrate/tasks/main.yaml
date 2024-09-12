@@ -1,0 +1,13 @@
+---
+
+- name: Install nfs-utils
+  ansible.builtin.package:
+    name: nfs-utils
+    state: present
+
+- name: Deploy Fuzzball Orchestrate
+  kubernetes.core.k8s:
+    state: present
+    apply: true
+    definition: "{{ fuzzball_orchestrate_defaults | ansible.builtin.combine(fuzzball_orchestrate, recursive=true) }}"
+    kubeconfig: "{{ kubeconfig }}"

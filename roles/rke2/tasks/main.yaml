@@ -1,0 +1,106 @@
+---
+
+# https://docs.rke2.io/known_issues
+- name: Configure NetworkManager to ignore RKE2 interfaces
+  ansible.builtin.copy:
+    src: NetworkManager/conf.d/rke2-canal.conf
+    dest: /etc/NetworkManager/conf.d/rke2-canal.conf
+    mode: 0644
+  notify: Reload NetworkManager
+
+- name: Tune fs.inotify.max_user_instances
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    value: '8192'
+    state: present
+
+# https://docs.rke2.io/known_issues
+- name: Disable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    enabled: false
+    state: stopped
+
+- name: Install RKE2
+  ansible.builtin.shell:
+    cmd: "curl -sfL https://get.rke2.io | sh -"
+    creates: /etc/rancher
+
+- name: Configure RKE2 cluster IP
+  ansible.builtin.template:
+    src: rancher/rke2/config.yaml
+    dest: /etc/rancher/rke2/config.yaml
+    mode: 0644
+
+- name: Start RKE2
+  ansible.builtin.service:
+    name: rke2-server
+    state: started
+
+- name: Install Local Path Provisioner
+  kubernetes.core.k8s:
+    state: present
+    src: https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml
+    kubeconfig: "{{ kubeconfig }}"
+  register: result
+  retries: 10
+  delay: 10
+  until: result.failed is not defined or result.failed == false
+
+- name: Create /opt/local-path-provisioner
+  ansible.builtin.file:
+    path: /opt/local-path-provisioner
+    state: directory
+
+- name: Fix /opt/local-path-provisioner context for SELinux
+  ansible.builtin.command: restorecon -rv /opt/local-path-provisioner
+
+- name: Install metallb
+  kubernetes.core.k8s:
+    state: present
+    src: https://raw.githubusercontent.com/metallb/metallb/v0.14.5/config/manifests/metallb-native.yaml
+    kubeconfig: "{{ kubeconfig }}"
+  register: result
+  retries: 10
+  delay: 10
+  until: result.failed is not defined or result.failed == false
+
+- name: Configure metallb pool
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ metallb_pool_defaults | ansible.builtin.combine(metallb_pool, recursive=true) }}"
+    kubeconfig: "{{ kubeconfig }}"
+  register: result
+  retries: 10
+  delay: 10
+  until: result.failed is not defined or result.failed == false
+
+- name: Configure metallb advertisement
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ metallb_advertisement_defaults | ansible.builtin.combine(metallb_advertisement, recursive=true) }}"
+    kubeconfig: "{{ kubeconfig }}"
+
+# - name: Disable RKE2 ingress hostPorts
+#   kubernetes.core.k8s:
+#     state: present
+#     apply: true
+#     definition:
+#       apiVersion: apps/v1
+#       kind: DaemonSet
+#       metadata:
+#         name: rke2-ingress-nginx-controller
+#         namespace: kube-system
+#       spec:
+#         template:
+#           spec:
+#             containers:
+#             - name: rke2-ingress-nginx-controller
+#               ports:
+#               - containerPort: 80
+#                 name: http
+#                 hostPort: null
+#               - containerPort: 443
+#                 name: https
+#                 hostPort: null
+#     kubeconfig: /etc/rancher/rke2/rke2.yaml

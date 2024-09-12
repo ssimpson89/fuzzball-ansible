@@ -1,0 +1,6 @@
+---
+
+- name: Configure NFS export for Orchestrate and Substrate
+  hosts: "{{ ansible_limit | default(omit) }}"
+  roles:
+  - ciq.fuzzball.nfs_server

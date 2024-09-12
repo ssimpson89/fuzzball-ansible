@@ -1,0 +1,124 @@
+all:
+  vars:
+    ansible_user: root
+
+    ##
+    #  CIQ Depot
+    #
+    # REQUIRED: registration credentials and an OCI password
+    # to retrieve Fuzzball installation packages and containers
+    depot_user:
+    depot_token:
+
+    ##
+    #  NFS server
+    #
+
+    # The subnet to which the provisioned NFS server will export the
+    # shared file system.
+    fuzzball_nfs_exports_subnets:
+    - 10.0.0.0/24
+
+    ##
+    #  Fuzzball Substrate
+    #
+
+    # The NFS share Fuzzball Substrate will read configuration from.
+    # configuration to fuzzball-substrate. (Replace "nfs-server1" with the
+    # address or name of your NFS server.)
+    fuzzball_substrate_nfs_mount: nfs-server1:/srv/fuzzball/shared
+
+    ##
+    #  Fuzzball Orchestrate
+    #
+
+    # REQUIRED: The version of Fuzzball Orchestrate to deploy.
+    fuzzball_version:
+
+    # The StorageClass that the Fuzzball operator should use.
+    # fuzzball_operator_storage_class: "local-path"
+
+    # Customizations for the Fuzzball CRD instance that governs the
+    # deployment of Fuzzball Orchestrate.
+    #
+    # Recommended site configuration parameters are indicated below.
+    #
+    # - https://ciqinc.atlassian.net/wiki/spaces/ENG/pages/786235424/Using+the+Fuzzball+Operator
+    fuzzball_orchestrate:
+      spec:
+        fuzzball:
+          substrate:
+            nfs:
+              server: # IP address of NFS server hosting Fuzzball Substrate config
+          kube:
+            backendGatewayService:
+              metallb.universe.tf/loadBalancerIPs: # preferred individual external IP address; e.g., 10.0.0.99
+          workflow:
+            callbackService:
+              annotations:
+                metallb.universe.tf/loadBalancerIPs: # preferred individual external IP address; e.g., 10.0.0.99
+        ingress:
+          create:
+            domain: # parent domain under which Fuzzball services names will be defined; e.g., 10.0.0.99.nip.io
+            proxy:
+              annotations:
+                metallb.universe.tf/loadBalancerIPs: # preferred individual external IP address; e.g., 10.0.0.99
+        keycloak:
+          create:
+            realmId: # Unique UUIDv4, or existing UUIDv4 for external Keycloak
+            ingres:
+              hostname: # e.g., auth.10.0.0.99.nip.io
+
+    ##
+    #  RKE2
+    #
+
+    # Customizations for the default metallb pool that Fuzzball
+    # Orchestrate will use for external services.
+    #
+    # See also: https://metallb.io/configuration/
+    #
+    # Recommended site configuration parameters are indicated below.
+    metallb_pool:
+      spec:
+        addresses:
+        - # addresses available for use with external services; e.g., 10.0.0.99/32
+
+    ##
+    #  Keycloak
+    #
+
+    # Environment variables passed to an external Keycloak deployment (if used).
+    #
+    # For more information, see https://www.keycloak.org/server/all-config
+    # keycloak_env:
+    #   KC_DB_PASSWORD:
+    #   KEYCLOAK_ADMIN_PASSWORD:
+    #   KC_HOSTNAME_URL: # e.g., https://auth.10.0.0.99.nip.io
+    #   KC_HOSTNAME_ADMIN_URL:
+
+    # Keycloak must be accessed via TLS, so we use certbot to generate
+    # a LetsEncrypt certificate. That registration requires an email
+    # address and the domain to register.
+    # keycloak_certbot_email:
+    # keycloak_certbot_domain:
+
+  children:
+    # An administrative node that provides an NFS share.
+    fuzzball_nfs_server:
+      hosts:
+        admin1:
+          cluster_interface: # used to configure firewalld to allow cluster communication
+
+    # Hosts RKE2 and Fuzzball Orchestrate.
+    fuzzball_controller:
+      hosts:
+        ctl1:
+          rke2_node_ip: # which IP address a local RKE2 deployment should use
+
+    # Compute nodes run Fuzzball Substrate as an agent of Fuzzball
+    # Orchestrate and accept Fuzzball jobs for execution.
+    fuzzball_compute:
+      hosts:
+        compute[1:4]:
+          cluster_interface: # used to configure firewalld to allow cluster communication
