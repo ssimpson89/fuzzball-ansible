@@ -50,9 +50,6 @@ all:
           substrate:
             nfs:
               server: # IP address of NFS server hosting Fuzzball Substrate config
-          kube:
-            backendGatewayService:
-              metallb.universe.tf/loadBalancerIPs: # preferred individual external IP address; e.g., 10.0.0.99
           workflow:
             callbackService:
               annotations:
