@@ -22,3 +22,6 @@ metallb_advertisement_defaults:
     - default-pool
 
 metallb_advertisement: {}
+
+metallb: true
+nodeport_proxy: false

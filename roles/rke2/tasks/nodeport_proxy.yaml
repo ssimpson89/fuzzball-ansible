@@ -1,0 +1,32 @@
+---
+
+- name: Copy http proxy systemd service file
+  ansible.builtin.template:
+    src: templates/nodeport/proxy/http-proxy.service.j2
+    dest: /etc/systemd/system/http-proxy.service
+    mode: '0644'
+
+- name: Copy https proxy systemd service file
+  ansible.builtin.template:
+    src: templates/nodeport/proxy/https-proxy.service.j2
+    dest: /etc/systemd/system/https-proxy.service
+    mode: '0644'
+
+- name: Install socat
+  ansible.builtin.dnf:
+    name: socat
+    state: present
+
+- name: Enable and start http proxy
+  ansible.builtin.systemd:
+    name: http-proxy
+    enabled: yes
+    state: started
+    daemon_reload: true
+
+- name: Enable and start https proxy
+  ansible.builtin.systemd:
+    name: https-proxy
+    enabled: yes
+    state: started
+    daemon_reload: true

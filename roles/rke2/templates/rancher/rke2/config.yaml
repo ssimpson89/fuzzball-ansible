@@ -6,3 +6,5 @@ cluster-cidr: {{ rke2_cluster_cidr }}
 {% if rke2_service_cidr is defined %}
 service-cidr: {{ rke2_service_cidr }}
 {% endif %}
+
+disable: rke2-ingress-nginx
