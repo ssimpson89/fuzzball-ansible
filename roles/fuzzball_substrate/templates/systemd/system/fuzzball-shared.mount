@@ -1,7 +1,7 @@
 [Unit]
 Description=Mount NFS Share
-Requires=remote-fs.target network-online.target
-After=remote-fs.target network-online.target
+Requires=network-online.target
+After=network-online.target
 
 [Mount]
 What={{ fuzzball_substrate_nfs_mount | regex_replace('%', '%%') }}
