@@ -27,17 +27,10 @@ fuzzball_orchestrate_defaults:
         storage:
           class: local-path
         localStorage: true
-      log:
-        storage:
-          class: local-path
-        serviceAccount: {}
       schedule:
         storage:
           class: local-path
         gossipService:
-          type: NodePort
-      dns:
-        externalService:
           type: NodePort
       storage:
         gossipService:
@@ -52,8 +45,6 @@ fuzzball_orchestrate_defaults:
         enableDebugPod: true
         storage:
           class: local-path
-    kyverno:
-      create: {}
     tls:
       certManager:
         create: {}
