@@ -71,6 +71,24 @@ all:
     #  RKE2
     #
 
+    # Use a NodePort and host service proxy for cluster traffic ingress.
+    # Mutually exclusive with the metallb option.
+    # Fuzzball Kong ingress configurations will need to specify the following NodePort proxy configuration.
+    #   ingress:
+    #     create:
+    #       proxy:
+    #         type: NodePort
+    #         http:
+    #           nodePort: 30080
+    #         tls:
+    #           nodePort: 30443
+    nodeport_proxy: false
+
+    # Use metallb as the LoadBalancer solution for cluster traffic ingress.
+    # Mutually exclusive with the nodeport_proxy option. 
+    # LoadBalancer service configuration may need `metallb.universe.tf/loadBalancerIPs` annotations.
+    metallb: true
+
     # Customizations for the default metallb pool that Fuzzball
     # Orchestrate will use for external services.
     #

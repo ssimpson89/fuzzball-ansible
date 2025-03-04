@@ -35,11 +35,6 @@ fuzzball_orchestrate_defaults:
       storage:
         gossipService:
           type: NodePort
-      workflow:
-        callbackService:
-          type: LoadBalancer
-          annotations:
-            metallb.universe.tf/allow-shared-ip: "ingress-and-fuzzball"
     database:
       create:
         enableDebugPod: true
