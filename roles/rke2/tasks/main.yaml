@@ -25,6 +25,10 @@
   ansible.builtin.shell:
     cmd: "curl -sfL https://get.rke2.io | sh -"
     creates: /etc/rancher
+  register: rke2_install
+  retries: 5
+  delay: 7
+  until: rke2_install is succeeded
 
 - name: Configure RKE2 cluster IP
   ansible.builtin.template:
