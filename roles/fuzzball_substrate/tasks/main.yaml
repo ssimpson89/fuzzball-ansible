@@ -1,7 +1,7 @@
 ---
 
 - name: Install Fuzzball Substrate
-  ansible.builtin.package:
+  ansible.builtin.dnf:
     name: "{{ item }}"
     state: present
   loop:
