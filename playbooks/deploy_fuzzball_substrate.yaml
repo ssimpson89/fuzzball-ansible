@@ -6,7 +6,7 @@
   tasks:
     - name: Refresh DNF metadata
       ansible.builtin.dnf:
-        update_cache: yes
+        update_cache: true
 
     - name: Include Fuzzball Substrate Role
       include_role:
