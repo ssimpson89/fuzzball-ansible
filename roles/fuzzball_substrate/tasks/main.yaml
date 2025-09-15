@@ -2,11 +2,11 @@
 
 - name: Install Fuzzball Substrate
   ansible.builtin.dnf:
-    name: "{{ item }}"
     state: present
-  loop:
-    - fuzzball-substrate
-    - fuzzball-substrate-orchestrate
+    name:
+      - fuzzball-substrate
+      - fuzzball-substrate-orchestrate
+    update_cache: true
 
 - name: Configure Fuzzball Substrate
   ansible.builtin.template:
