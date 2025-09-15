@@ -7,6 +7,10 @@
       - fuzzball-substrate
       - fuzzball-substrate-orchestrate
     update_cache: true
+  register: substrate_install
+  until: substrate_install is succeeded
+  retries: 3
+  delay: 10
 
 - name: Configure Fuzzball Substrate
   ansible.builtin.template:
