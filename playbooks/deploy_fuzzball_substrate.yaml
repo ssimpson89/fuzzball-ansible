@@ -2,8 +2,5 @@
 
 - name: Deploy Fuzzball Substrate
   hosts: "{{ ansible_limit | default(omit) }}"
-
-  tasks:
-    - name: Include Fuzzball Substrate Role
-      include_role:
-        name: ciq.fuzzball.fuzzball_substrate
+  roles:
+  - ciq.fuzzball.fuzzball_substrate
