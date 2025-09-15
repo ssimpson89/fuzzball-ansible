@@ -2,5 +2,12 @@
 
 - name: Deploy Fuzzball Substrate
   hosts: "{{ ansible_limit | default(omit) }}"
-  roles:
-  - ciq.fuzzball.fuzzball_substrate
+
+  tasks:
+    - name: Refresh DNF metadata
+      ansible.builtin.dnf:
+        update_cache: yes
+
+    - name: Include Fuzzball Substrate Role
+      include_role:
+        name: ciq.fuzzball.fuzzball_substrate
